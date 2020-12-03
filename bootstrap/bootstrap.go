@@ -144,7 +144,7 @@ func (g *Generator) writeMain() (path string, err error) {
 		fmt.Fprintln(f, "  g.SkipMemberNameUnescaping()")
 	}
 	if g.UnmarshalersOnly {
-		fmt.Fprintln(f, "  g.SkipMemberNameUnescaping()")
+		fmt.Fprintln(f, "  g.UnmarshalersOnly()")
 	}
 
 	sort.Strings(g.Types)
