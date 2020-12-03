@@ -65,7 +65,9 @@ func (g *Generator) writeStub() error {
 	if len(g.Types) > 0 {
 		fmt.Fprintln(f)
 		fmt.Fprintln(f, "import (")
-		fmt.Fprintln(f, `  "`+pkgWriter+`"`)
+		if !g.UnmarshalersOnly {
+			fmt.Fprintln(f, `  "`+pkgWriter+`"`)
+		}
 		fmt.Fprintln(f, `  "`+pkgLexer+`"`)
 		fmt.Fprintln(f, ")")
 	}
