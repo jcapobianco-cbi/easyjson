@@ -83,7 +83,6 @@ func (g *Generator) writeStub() error {
 		}
 		if !g.UnmarshalersOnly {
 			fmt.Fprintln(f, "func (", t, ") MarshalEasyJSON(w *jwriter.Writer) {}")
-
 		}
 		fmt.Fprintln(f, "func (*", t, ") UnmarshalEasyJSON(l *jlexer.Lexer) {}")
 		fmt.Fprintln(f)
@@ -142,6 +141,9 @@ func (g *Generator) writeMain() (path string, err error) {
 		fmt.Fprintln(f, "  g.SimpleBytes()")
 	}
 	if g.SkipMemberNameUnescaping {
+		fmt.Fprintln(f, "  g.SkipMemberNameUnescaping()")
+	}
+	if g.UnmarshalersOnly {
 		fmt.Fprintln(f, "  g.SkipMemberNameUnescaping()")
 	}
 

@@ -124,6 +124,10 @@ func (g *Generator) SkipMemberNameUnescaping() {
 	g.skipMemberNameUnescaping = true
 }
 
+func (g *Generator) UnmarshalersOnly() {
+	g.unmarshalersOnly = true
+}
+
 // OmitEmpty triggers `json=",omitempty"` behaviour by default.
 func (g *Generator) OmitEmpty() {
 	g.omitEmpty = true
