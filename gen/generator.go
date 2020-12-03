@@ -34,6 +34,7 @@ type Generator struct {
 	varCounter int
 
 	noStdMarshalers          bool
+	unmarshalersOnly         bool
 	omitEmpty                bool
 	disallowUnknownFields    bool
 	fieldNamer               FieldNamer
@@ -204,20 +205,24 @@ func (g *Generator) Run(out io.Writer) error {
 		g.typesUnseen = g.typesUnseen[:len(g.typesUnseen)-1]
 		g.typesSeen[t] = true
 
+		if !g.unmarshalersOnly {
+			if err := g.genEncoder(t); err != nil {
+				return err
+			}
+
+			if !g.marshalers[t] {
+				continue
+			}
+
+			if err := g.genStructMarshaler(t); err != nil {
+				return err
+			}
+		}
+
 		if err := g.genDecoder(t); err != nil {
 			return err
 		}
-		if err := g.genEncoder(t); err != nil {
-			return err
-		}
 
-		if !g.marshalers[t] {
-			continue
-		}
-
-		if err := g.genStructMarshaler(t); err != nil {
-			return err
-		}
 		if err := g.genStructUnmarshaler(t); err != nil {
 			return err
 		}

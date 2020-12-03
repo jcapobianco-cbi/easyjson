@@ -31,6 +31,7 @@ var specifiedName = flag.String("output_filename", "", "specify the filename of 
 var processPkg = flag.Bool("pkg", false, "process the whole package instead of just the given file")
 var disallowUnknownFields = flag.Bool("disallow_unknown_fields", false, "return error if any unknown field in json appeared")
 var skipMemberNameUnescaping = flag.Bool("disable_members_unescape", false, "don't perform unescaping of member names to improve performance")
+var unmarshalersOnly = flag.Bool("unmarshalers_only", false, "don't create marshal and encoding funcs, only unmarshalers")
 
 func generate(fname string) (err error) {
 	fInfo, err := os.Stat(fname)
@@ -85,6 +86,7 @@ func generate(fname string) (err error) {
 		StubsOnly:                *stubs,
 		NoFormat:                 *noformat,
 		SimpleBytes:              *simpleBytes,
+		UnmarshalersOnly:         *unmarshalersOnly,
 	}
 
 	if err := g.Run(); err != nil {
