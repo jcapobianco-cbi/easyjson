@@ -75,10 +75,10 @@ func (g *Generator) writeStub() error {
 	sort.Strings(g.Types)
 	for _, t := range g.Types {
 		fmt.Fprintln(f)
+		if !g.NoStdMarshalers && !g.UnmarshalersOnly {
+			fmt.Fprintln(f, "func (", t, ") MarshalJSON() ([]byte, error) { return nil, nil }")
+		}
 		if !g.NoStdMarshalers {
-			if !g.UnmarshalersOnly {
-				fmt.Fprintln(f, "func (", t, ") MarshalJSON() ([]byte, error) { return nil, nil }")
-			}
 			fmt.Fprintln(f, "func (*", t, ") UnmarshalJSON([]byte) error { return nil }")
 		}
 		if !g.UnmarshalersOnly {
