@@ -13,9 +13,9 @@ import (
 	"unicode"
 )
 
-const pkgWriter = "github.com/mailru/easyjson/jwriter"
-const pkgLexer = "github.com/mailru/easyjson/jlexer"
-const pkgEasyJSON = "github.com/mailru/easyjson"
+const pkgWriter = "github.com/jcapobianco-cbi/easyjson/jwriter"
+const pkgLexer = "github.com/jcapobianco-cbi/easyjson/jlexer"
+const pkgEasyJSON = "github.com/jcapobianco-cbi/easyjson"
 
 // FieldNamer defines a policy for generating names for struct fields.
 type FieldNamer interface {
@@ -34,6 +34,7 @@ type Generator struct {
 	varCounter int
 
 	noStdMarshalers          bool
+	unmarshalersOnly         bool
 	omitEmpty                bool
 	disallowUnknownFields    bool
 	fieldNamer               FieldNamer
@@ -123,6 +124,10 @@ func (g *Generator) SkipMemberNameUnescaping() {
 	g.skipMemberNameUnescaping = true
 }
 
+func (g *Generator) UnmarshalersOnly() {
+	g.unmarshalersOnly = true
+}
+
 // OmitEmpty triggers `json=",omitempty"` behaviour by default.
 func (g *Generator) OmitEmpty() {
 	g.omitEmpty = true
@@ -204,20 +209,24 @@ func (g *Generator) Run(out io.Writer) error {
 		g.typesUnseen = g.typesUnseen[:len(g.typesUnseen)-1]
 		g.typesSeen[t] = true
 
+		if !g.unmarshalersOnly {
+			if err := g.genEncoder(t); err != nil {
+				return err
+			}
+
+			if !g.marshalers[t] {
+				continue
+			}
+
+			if err := g.genStructMarshaler(t); err != nil {
+				return err
+			}
+		}
+
 		if err := g.genDecoder(t); err != nil {
 			return err
 		}
-		if err := g.genEncoder(t); err != nil {
-			return err
-		}
 
-		if !g.marshalers[t] {
-			continue
-		}
-
-		if err := g.genStructMarshaler(t); err != nil {
-			return err
-		}
 		if err := g.genStructUnmarshaler(t); err != nil {
 			return err
 		}

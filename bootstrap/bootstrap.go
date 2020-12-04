@@ -16,7 +16,7 @@ import (
 	"sort"
 )
 
-const genPackage = "github.com/mailru/easyjson/gen"
+const genPackage = "github.com/jcapobianco-cbi/easyjson/gen"
 const pkgWriter = "github.com/mailru/easyjson/jwriter"
 const pkgLexer = "github.com/mailru/easyjson/jlexer"
 
@@ -27,6 +27,7 @@ type Generator struct {
 	Types            []string
 
 	NoStdMarshalers          bool
+	UnmarshalersOnly         bool
 	SnakeCase                bool
 	LowerCamelCase           bool
 	OmitEmpty                bool
@@ -64,7 +65,9 @@ func (g *Generator) writeStub() error {
 	if len(g.Types) > 0 {
 		fmt.Fprintln(f)
 		fmt.Fprintln(f, "import (")
-		fmt.Fprintln(f, `  "`+pkgWriter+`"`)
+		if !g.UnmarshalersOnly {
+			fmt.Fprintln(f, `  "`+pkgWriter+`"`)
+		}
 		fmt.Fprintln(f, `  "`+pkgLexer+`"`)
 		fmt.Fprintln(f, ")")
 	}
@@ -72,12 +75,15 @@ func (g *Generator) writeStub() error {
 	sort.Strings(g.Types)
 	for _, t := range g.Types {
 		fmt.Fprintln(f)
-		if !g.NoStdMarshalers {
+		if !g.NoStdMarshalers && !g.UnmarshalersOnly {
 			fmt.Fprintln(f, "func (", t, ") MarshalJSON() ([]byte, error) { return nil, nil }")
+		}
+		if !g.NoStdMarshalers {
 			fmt.Fprintln(f, "func (*", t, ") UnmarshalJSON([]byte) error { return nil }")
 		}
-
-		fmt.Fprintln(f, "func (", t, ") MarshalEasyJSON(w *jwriter.Writer) {}")
+		if !g.UnmarshalersOnly {
+			fmt.Fprintln(f, "func (", t, ") MarshalEasyJSON(w *jwriter.Writer) {}")
+		}
 		fmt.Fprintln(f, "func (*", t, ") UnmarshalEasyJSON(l *jlexer.Lexer) {}")
 		fmt.Fprintln(f)
 		fmt.Fprintln(f, "type EasyJSON_exporter_"+t+" *"+t)
@@ -136,6 +142,9 @@ func (g *Generator) writeMain() (path string, err error) {
 	}
 	if g.SkipMemberNameUnescaping {
 		fmt.Fprintln(f, "  g.SkipMemberNameUnescaping()")
+	}
+	if g.UnmarshalersOnly {
+		fmt.Fprintln(f, "  g.UnmarshalersOnly()")
 	}
 
 	sort.Strings(g.Types)

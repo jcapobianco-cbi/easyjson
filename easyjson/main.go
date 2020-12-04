@@ -8,12 +8,12 @@ import (
 	"path/filepath"
 	"strings"
 
-	"github.com/mailru/easyjson/bootstrap"
+	"github.com/jcapobianco-cbi/easyjson/bootstrap"
 	// Reference the gen package to be friendly to vendoring tools,
 	// as it is an indirect dependency.
 	// (The temporary bootstrapping code uses it.)
-	_ "github.com/mailru/easyjson/gen"
-	"github.com/mailru/easyjson/parser"
+	_ "github.com/jcapobianco-cbi/easyjson/gen"
+	"github.com/jcapobianco-cbi/easyjson/parser"
 )
 
 var buildTags = flag.String("build_tags", "", "build tags to add to generated file")
@@ -31,6 +31,7 @@ var specifiedName = flag.String("output_filename", "", "specify the filename of 
 var processPkg = flag.Bool("pkg", false, "process the whole package instead of just the given file")
 var disallowUnknownFields = flag.Bool("disallow_unknown_fields", false, "return error if any unknown field in json appeared")
 var skipMemberNameUnescaping = flag.Bool("disable_members_unescape", false, "don't perform unescaping of member names to improve performance")
+var unmarshalersOnly = flag.Bool("unmarshalers_only", false, "do not create marshal and encoding funcs, only unmarshal and decoding")
 
 func generate(fname string) (err error) {
 	fInfo, err := os.Stat(fname)
@@ -85,6 +86,7 @@ func generate(fname string) (err error) {
 		StubsOnly:                *stubs,
 		NoFormat:                 *noformat,
 		SimpleBytes:              *simpleBytes,
+		UnmarshalersOnly:         *unmarshalersOnly,
 	}
 
 	if err := g.Run(); err != nil {

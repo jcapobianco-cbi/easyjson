@@ -61,6 +61,8 @@ Usage of easyjson:
         return error if some unknown field in json appeared
   -disable_members_unescape
         disable unescaping of \uXXXX string sequences in member names
+  -unmarshalers_only
+        do not create marshal and encoding funcs, only unmarshal and decoding
 ```
 
 Using `-all` will generate marshalers/unmarshalers for all Go structs in the
